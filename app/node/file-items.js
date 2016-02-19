@@ -7,7 +7,7 @@ var Items = {
 	getFirstHundred: getFirstHundred,
     findById: findById,
     findByName: findByName,
-    findByPhone: findByPhone,
+    findByRegNum: findByRegNum,
     addItem: addItem,
     updateItem: updateItem,
     removeItem: removeItem,
@@ -51,11 +51,11 @@ function findByName(req, res) {
     return res.send(results);
 }
 
-function findByPhone(req, res) {
+function findByRegNum(req, res) {
     var name = req.params.name;
     var results = [];
     for (var i = 0; i < jsonItems.length; i++) {
-        if (jsonItems[i].phone.toUpperCase().indexOf(name.toUpperCase()) > -1) {
+        if (jsonItems[i].regnum.toUpperCase().indexOf(name.toUpperCase()) > -1) {
             results.push(jsonItems[i]);
         }
     }
