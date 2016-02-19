@@ -11,7 +11,7 @@ var Items = {
     findItem: findItem,
     findPostItem: findPostItem,
     findByName: findByName,
-    findByPhone: findByPhone,
+    findByRegNum: findByRegNum,
     editItem: editItem,
     editPostItem: editPostItem,
     updateItem: updateItem,
@@ -86,9 +86,9 @@ function findByName(req, res) {
     });
 }
 
-function findByPhone(req, res) {
+function findByRegNum(req, res) {
     ItemsModel.find({
-        "phone": new RegExp(req.params.name)
+        "regnum": new RegExp(req.params.regnum)
     }, function (err, items) {
         if (err) {
             res.send({error: err.message});

@@ -156,7 +156,7 @@
 								if (type == 'Search by name') {
 									api = 'api/items/findByName/';
 								} else {
-									api = 'api/items/findByPhone/';
+									api = 'api/items/findByRegNum/';
 								}
 								
                                 var webUrl = $rootScope.myConfig.webUrl + api;
