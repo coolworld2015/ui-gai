@@ -32,8 +32,8 @@
                 $state.go('items');
             }
 
-            vm.description = 'Phone: ' + vm.phone + '\n'
-                + 'Str: ' + vm.street + '\n'
+            vm.description = 'Model: ' + vm.model + '\n'
+				+ 'Name: ' + vm.name + '\n'
                 + 'House: ' + vm.house + '\n'
                 + 'Apt: ' + vm.apt + '\n'
                 + 'Zip: ' + vm.index;
