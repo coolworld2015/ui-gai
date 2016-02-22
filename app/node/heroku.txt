@@ -14,7 +14,7 @@ show collections
 db.dropDatabase()
 
 -----------------------------------------------------------------------------------------------------
-mongoimport -h ds011238.mongolab.com:11238 -d ui-gai -c items -u admin -p admin --file kiev09_100_000_mongo.json
+mongoimport -h ds011238.mongolab.com:11238 -d ui-gai -c items -u admin -p admin --file gai_50_000_mongo.json
 
 -----------------------------------------------------------------------------------------------------
 mongoimport -h ds011238.mongolab.com:11238 -d ui-gai -c items -u admin -p admin --file items.json

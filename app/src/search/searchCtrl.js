@@ -27,10 +27,10 @@
 
         function init() {
             vm.options = [
-                {name: 'Search by RegNum'},
-                {name: 'Search by Name'}
+                {name: 'Search by Name'},
+                {name: 'Search by RegNum'}
             ];
-            vm.search = 'Search by RegNum';
+            vm.search = 'Search by Name';
             vm.selectedItem = vm.options[0];
             $rootScope.loading = false;
         }
