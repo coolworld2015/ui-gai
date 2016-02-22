@@ -88,7 +88,7 @@ function findByName(req, res) {
 
 function findByRegNum(req, res) {
     ItemsModel.find({
-        "regnum": new RegExp(req.params.regnum)
+        "regnum": new RegExp(req.params.name)
     }, function (err, items) {
         if (err) {
             res.send({error: err.message});
