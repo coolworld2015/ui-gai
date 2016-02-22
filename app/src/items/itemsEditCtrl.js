@@ -31,14 +31,19 @@
             if ($stateParams.item.name == undefined) {
                 $state.go('items');
             }
+            $rootScope.myError = false;
 
             vm.description = 'Model: ' + vm.model + '\n'
-				+ 'Name: ' + vm.name + '\n'
+                + 'Year: ' + vm.year + '\n'
+                + 'Name: ' + vm.name + ' ' + vm.name1 + ' ' + vm.name2 + '\n'
+                + 'Birth: ' + vm.bdate + '\n'
+                + 'Job: ' + vm.job + '\n'
+                + 'Position: ' + vm.pos + '\n'
+                + 'Phone: ' + vm.phone + '\n'
+                + 'Address: ' + vm.str + '\n'
                 + 'House: ' + vm.house + '\n'
-                + 'Apt: ' + vm.apt + '\n'
-                + 'Zip: ' + vm.index;
+                + 'Apt: ' + vm.apt;
 
-            $rootScope.myError = false;
             $rootScope.loading = false;
         }
 

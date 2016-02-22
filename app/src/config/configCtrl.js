@@ -44,7 +44,7 @@
                 vm.mode = 'OFF-LINE (LocalStorage)';
                 $rootScope.mode = 'OFF-LINE (LocalStorage)';
             }
-            localStorage.setItem('ui-base.mode', JSON.stringify(vm.mode));
+            localStorage.setItem('ui-gai.mode', JSON.stringify(vm.mode));
             toMain();
         }
 
