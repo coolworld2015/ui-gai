@@ -25,6 +25,7 @@ function getFirstHundred(req, res) {
     var hundred = [].concat(jsonItems.sort(sort));
 	hundred.splice(1000, 1000000);                  //TODO 1000 records
     console.log(hundred.length);
+    console.log(req.ip);
     res.send(hundred);
 }
 
