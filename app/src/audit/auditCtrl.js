@@ -47,7 +47,7 @@
                 var begin = (($scope.currentPage - 1) * $scope.numPerPage);
                 var end = parseInt(begin) + parseInt($scope.numPerPage);
                 $scope.filteredAudit = vm.audit.slice(begin, end);
-                vm.totalItems = vm.audit.length;
+                $scope.totalItems = vm.audit.length;
             }
         }
 

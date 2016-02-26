@@ -47,7 +47,7 @@
                 var begin = (($scope.currentPage - 1) * $scope.numPerPage);
                 var end = parseInt(begin) + parseInt($scope.numPerPage);
                 $scope.filteredUsers = vm.users.slice(begin, end);
-                vm.totalItems = vm.users.length;
+                $scope.totalItems = vm.users.length;
             }
         }
 
