@@ -132,7 +132,7 @@
                 .state('audit', {
                     url: '/audit',
                     data: {
-                        requireLogin: false
+                        requireLogin: true
                     },
                     templateUrl: 'audit/audit.html',
                     controller: 'AuditCtrl',
