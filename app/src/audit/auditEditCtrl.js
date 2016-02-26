@@ -5,9 +5,9 @@
         .module('app')
         .controller('AuditEditCtrl', AuditEditCtrl);
 
-    AuditEditCtrl.$inject = ['$state', '$rootScope', '$timeout', '$stateParams'];
+    AuditEditCtrl.$inject = ['$state', '$rootScope', '$timeout', '$stateParams', '$filter'];
 
-    function AuditEditCtrl($state, $rootScope, $timeout, $stateParams) {
+    function AuditEditCtrl($state, $rootScope, $timeout, $stateParams, $filter) {
         var vm = this;
 
         angular.extend(vm, {
@@ -28,6 +28,8 @@
             if ($stateParams.item.name == undefined) {
                 $state.go('audit');
             }
+
+            vm.ip = $filter('ipfilter')(vm.ip);
 
             $rootScope.myError = false;
             $rootScope.loading = false;
