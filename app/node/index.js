@@ -84,7 +84,7 @@ app.get('/file/api/audit/get', fileAudit.getAll);
 app.post('/file/api/audit/add', fileAudit.addItem);
 
 //------------------------------------------------------------------------
-//var mongoAudit = require('./mongo-users').Audit;
-//
-//app.get('/api/audit/get', mongoAudit.getUsers);
-//app.post('/api/audit/add', mongoAudit.addUser);
+var mongoAudit = require('./mongo-audit').Audit;
+
+app.get('/api/audit/get', mongoAudit.getAudit);
+app.post('/api/audit/add', mongoAudit.addAudit);
