@@ -3,11 +3,11 @@
 
     angular
         .module('app')
-        .controller('UsersCtrl', UsersCtrl);
+        .controller('AuditCtrl', AuditCtrl);
 
-    UsersCtrl.$inject = ['$scope', '$rootScope', '$state', '$timeout', 'users'];
+    AuditCtrl.$inject = ['$scope', '$rootScope', '$state', '$timeout', 'audit'];
 
-    function UsersCtrl($scope, $rootScope, $state, $timeout, users) {
+    function AuditCtrl($scope, $rootScope, $state, $timeout, audit) {
         $scope.$watch('numPerPage', currentPage);
         $scope.$watch('currentPage', currentPage);
         var vm = this;
@@ -15,11 +15,11 @@
         angular.extend(vm, {
             init: init,
             currentPage: currentPage,
-            usersEditForm: usersEditForm,
-            usersAdd: usersAdd,
+            auditEditForm: auditEditForm,
+            auditAdd: auditAdd,
             goToBack: goToBack,
             goToHead: goToHead,
-            usersBack: usersBack,
+            auditBack: auditBack,
             _errorHandler: errorHandler
         });
 
@@ -30,9 +30,9 @@
         init();
 
         function init() {
-            vm.title = 'Users';
-            vm.users = users;
-            vm.usersFilter = [];
+            vm.title = 'Audit';
+            vm.audit = audit;
+            vm.auditFilter = [];
 
             $scope.currentPage = 1;
             $scope.numPerPage = 10;
@@ -43,25 +43,25 @@
         }
 
         function currentPage() {
-            if (Object.prototype.toString.call(vm.users) == '[object Array]') {
+            if (Object.prototype.toString.call(vm.audit) == '[object Array]') {
                 var begin = (($scope.currentPage - 1) * $scope.numPerPage);
                 var end = parseInt(begin) + parseInt($scope.numPerPage);
-                $scope.filteredUsers = vm.users.slice(begin, end);
-                vm.totalItems = vm.users.length;
+                $scope.filteredAudit = vm.audit.slice(begin, end);
+                vm.totalItems = vm.audit.length;
             }
         }
 
-        function usersEditForm(item) {
+        function auditEditForm(item) {
             $rootScope.loading = true;
             $timeout(function () {
-                $state.go('users-edit', {item: item});
+                $state.go('audit-edit', {item: item});
             }, 100);
         }
 
-        function usersAdd() {
+        function auditAdd() {
             $rootScope.loading = true;
             $timeout(function () {
-                $state.go('users-add');
+                $state.go('audit-add');
             }, 100);
         }
 
@@ -73,7 +73,7 @@
             $scope.$broadcast('scrollThere');
         }
 
-        function usersBack() {
+        function auditBack() {
             $rootScope.loading = true;
             $timeout(function () {
                 $state.go('main');
