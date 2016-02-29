@@ -75,7 +75,6 @@
                             })
                             .catch(errorHandler);
 
-
                     } else {
                         vm.error = true;
                     }
