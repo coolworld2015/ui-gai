@@ -9,7 +9,8 @@ app.listen(process.env.PORT || 3000, function () {
 });
 
 app.get('/', function (req, res) {
-	res.sendFile(__dirname + '/build/index.html');
+	//res.sendFile(__dirname + '/build/index.html');
+	res.sendFile(__dirname + '/auth.html');			//	MUST REMOVE !!!
     //res.send('It is just API Server...');
 });
 
@@ -19,72 +20,309 @@ app.use(express.static(__dirname + '/build'));
 app.use(function (req, res, next) {
     res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
-    res.header('Access-Control-Allow-Headers', 'Content-Type');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, accept, authorization');
     next();
 });
 
 //------------------------------------------------------------------------
-//------------------------------------------------------------------------
-var fileItems = require('./file-items').Items;
+var jwt = require('jsonwebtoken');
+var secret = 'f3oLigPb3vGCg9lgL0Bs97wySTCCuvYdOZg9zqTY32o';
 
-app.get('/file/api/items/getAll', fileItems.getAll);
-app.get('/file/api/items/get', fileItems.getFirstHundred);
-app.get('/file/api/items/findId/:id', fileItems.findById);
-app.get('/file/api/items/findByName/:name', fileItems.findByName);
-app.get('/file/api/items/findByRegNum/:name', fileItems.findByRegNum);
-app.post('/file/api/items/add', fileItems.addItem);
-app.post('/file/api/items/delete', fileItems.removeItem);
-app.post('/file/api/items/update', fileItems.updateItem);
+var token = jwt.sign({auth:  'magic'}, secret, { expiresIn: 60 * 60 });
 
-//------------------------------------------------------------------------
-var mongoItems = require('./mongo-items').Items;
+setInterval(function(){
+	token = jwt.sign({auth:  'magic'}, secret, { expiresIn: 60 * 60 });
+	}, 1000 * 60 * 60);
 
-app.get('/api/items/getAll', mongoItems.getItems);
-app.get('/api/items/get', mongoItems.getFirstHundred);
-app.get('/api/items/find/:id', mongoItems.findItem);
-app.post('/api/items/find', mongoItems.findPostItem);
-app.get('/api/items/findByName/:name', mongoItems.findByName);
-app.get('/api/items/findByRegNum/:name', mongoItems.findByRegNum);
-app.get('/api/items/edit/:id/:name', mongoItems.editItem);
-app.post('/api/items/edit/', mongoItems.editPostItem);
-app.post('/api/items/update', mongoItems.updateItem);
-app.post('/api/items/add', mongoItems.addItem);
-app.post('/api/items/save', mongoItems.saveItem);
-app.get('/api/items/drop', mongoItems.removeAllItems);
-app.post('/api/items/drop', mongoItems.removeAllItems);
-app.post('/api/items/delete', mongoItems.removeItem);
+app.get('/api/auth', function(req, res) {
+	return res.send(token);
+});
 
 //------------------------------------------------------------------------
+app.post('/api/login', function(req, res) {
+	var UsersModel = require('./mongo').UsersModel;
+    UsersModel.findOne({
+        name: req.body.name
+    }, function (err, user) {
+        if (err) {
+            res.send({error: err.message});
+        } 
+		if (user) {
+			if (user.pass == req.body.pass) {
+
+				// Audit start
+				var AuditModel = require('./mongo').AuditModel;
+				var date = new Date().toJSON().slice(0, 10);
+				var time = new Date().toTimeString().slice(0, 8);
+				AuditModel.create({
+						id: + new Date(),
+						name: req.body.name,
+						date: date + ' ' + time,
+						ip: req.ip,
+						description: req.body.description
+				},
+				function (err, audit) {
+					if (err) {
+						return res.send({error: 'Server error'});
+					} else {
+						res.send(token); // Send TOKEN here !!!
+					}
+				});
+				// Audit end
+			} else {
+				res.status(403).send({ 
+					success: false, 
+					message: 'No such pass.' 
+				});
+			}
+		} else {
+			res.status(403).send({ 
+				success: false, 
+				message: 'No such user.' 
+			});
+		}
+
+    });
+});
+
 //------------------------------------------------------------------------
-var fileUsers = require('./file-users').Users;
+app.get('/api/users/get', function(req, res) {
+	var agent = req.headers.authorization;
+	//console.log('agent - ' + agent);
+	
+	jwt.verify(agent, secret, function(err, decoded) {
+		if (err) {
+			return res.status(403).send({ 
+				success: false, 
+				message: 'No token provided.' 
+			});
+		} else {
+			//console.log(decoded);
+			var UsersModel = require('./mongo').UsersModel;
+			return UsersModel.find(function (err, users) {
+				if (!err) {
+					return res.send(users);
+				} else {
+					res.statusCode = 500;
+					return res.send({error: 'Server error'});
+				}
+			});
+		}
+	});
+});
 
-app.get('/file/api/users/get', fileUsers.getAll);
-app.get('/file/api/users/findId/:id', fileUsers.findById);
-app.get('/file/api/users/findByName/:name', fileUsers.findByName);
-app.post('/file/api/users/add', fileUsers.addItem);
-app.post('/file/api/users/delete', fileUsers.removeItem);
-app.post('/file/api/users/update', fileUsers.updateItem);
+app.post('/api/users/add', function(req, res) {
+	var agent = req.body.authorization;
+	
+	jwt.verify(agent, secret, function(err, decoded) {
+		if (err) {
+			return res.status(403).send({ 
+				success: false, 
+				message: 'No token provided.' 
+			});
+		} else {
+			var UsersModel = require('./mongo').UsersModel;
+			UsersModel.create({
+					id: req.body.id,
+					name: req.body.name,
+					pass: req.body.pass,
+					description: req.body.description
+				},
+				function (err, user) {
+					if (err) {
+						return res.send({error: 'Server error'});
+					}
+					res.send(user);
+				});
+		}
+	});
+});
+
+app.post('/api/users/update', function(req, res) {
+	var agent = req.body.authorization;
+	
+	jwt.verify(agent, secret, function(err, decoded) {
+		if (err) {
+			return res.status(403).send({ 
+				success: false, 
+				message: 'No token provided.' 
+			});
+		} else {
+			var UsersModel = require('./mongo').UsersModel;
+			UsersModel.findOne({
+				id: req.body.id
+			}, function (err, user) {
+				if (err) {
+					res.send({error: err.message});
+				} else {
+					user.name = req.body.name;
+					user.pass = req.body.pass;
+					user.description = req.body.description;
+
+					user.save(function (err) {
+						if (!err) {
+							res.send(user);
+						} else {
+							return res.send(err);
+						}
+					});
+				}	
+			});
+		}
+	});
+});
+
+app.post('/api/users/delete', function(req, res) {
+	var agent = req.body.authorization;
+	
+	jwt.verify(agent, secret, function(err, decoded) {
+		if (err) {
+			return res.status(403).send({ 
+				success: false, 
+				message: 'No token provided.' 
+			});
+		} else {
+			var UsersModel = require('./mongo').UsersModel;
+			UsersModel.remove({
+				"id": req.body.id
+			}, 
+			function (err) {
+				if (err) {
+					return res.send({error: 'Server error'});
+				} else {
+					console.log('User with id: ', req.body.id, ' was removed');
+					res.send('User with id: ' + req.body.id + ' was removed');
+				}
+			});
+		}
+	});
+});
 
 //------------------------------------------------------------------------
-var mongoUsers = require('./mongo-users').Users;
+app.get('/api/audit/get', function(req, res) {
+	var agent = req.headers.authorization;
+	
+	jwt.verify(agent, secret, function(err, decoded) {
+		if (err) {
+			return res.status(403).send({ 
+				success: false, 
+				message: 'No token provided.' 
+			});
+		} else {
+			var AuditModel = require('./mongo').AuditModel;
+			return AuditModel.find(function (err, users) {
+				if (!err) {
+					return res.send(users);
+				} else {
+					res.statusCode = 500;
+					return res.send({error: 'Server error'});
+				}
+			}).sort({date: -1}); 
+		}
+	});
+});
 
-app.get('/api/users/get', mongoUsers.getUsers);
-app.get('/api/users/findByName/:name', mongoUsers.findByName);
-app.post('/api/users/find', mongoUsers.findPostUser);
-app.post('/api/users/update', mongoUsers.updateUser);
-app.post('/api/users/add', mongoUsers.addUser);
-app.get('/api/users/drop', mongoUsers.removeAllUsers);
-app.post('/api/users/delete', mongoUsers.removeUser);
+app.post('/api/audit/add', function(req, res) {
+	var agent = req.body.authorization;
+	
+	jwt.verify(agent, secret, function(err, decoded) {
+		if (err) {
+			return res.status(403).send({ 
+				success: false, 
+				message: 'No token provided.' 
+			});
+		} else {
+			var AuditModel = require('./mongo').AuditModel;
+			var date = new Date().toJSON().slice(0, 10);
+			var time = new Date().toTimeString().slice(0, 8);
+			AuditModel.create({
+					id: req.body.id,
+					name: req.body.name,
+					date: date + ' ' + time,
+					ip: req.ip,
+					description: req.body.description
+				},
+				function (err, audit) {
+					if (err) {
+						return res.send({error: 'Server error'});
+					} else {
+						res.send(audit);
+					}
+				});
+		}
+	});	
+});
 
 //------------------------------------------------------------------------
-//------------------------------------------------------------------------
-var fileAudit = require('./file-audit').Audit;
+app.get('/api/items/get', function(req, res) {
+	var agent = req.headers.authorization;
+	
+	jwt.verify(agent, secret, function(err, decoded) {
+		if (err) {
+			return res.status(403).send({ 
+				success: false, 
+				message: 'No token provided.' 
+			});
+		} else {
+			var ItemsModel = require('./mongo').ItemsModel;
+			return ItemsModel.find(function (err, users) {
+				if (!err) {
+					return res.send(users);
+				} else {
+					res.statusCode = 500;
+					return res.send({error: 'Server error'});
+				}
+			}).limit(1000);
+		}
+	});
+});
 
-app.get('/file/api/audit/get', fileAudit.getAll);
-app.post('/file/api/audit/add', fileAudit.addItem);
+app.get('/api/items/findByName/:name', function(req, res) {
+	var agent = req.headers.authorization;
+	
+	jwt.verify(agent, secret, function(err, decoded) {
+		if (err) {
+			return res.status(403).send({ 
+				success: false, 
+				message: 'No token provided.' 
+			});
+		} else {
+			var ItemsModel = require('./mongo').ItemsModel;
+			ItemsModel.find({
+				"name": new RegExp(req.params.name, 'i')
+			}, function (err, items) {
+				if (err) {
+					res.send({error: err.message});
+				} else {
+					console.log('mongo - ' + items.length);
+					res.send(items);
+				}
+			});
+		}
+	});
+});
 
-//------------------------------------------------------------------------
-var mongoAudit = require('./mongo-audit').Audit;
-
-app.get('/api/audit/get', mongoAudit.getAudit);
-app.post('/api/audit/add', mongoAudit.addAudit);
+app.get('/api/items/findByPhone/:name', function(req, res) {
+	var agent = req.headers.authorization;
+	
+	jwt.verify(agent, secret, function(err, decoded) {
+		if (err) {
+			return res.status(403).send({ 
+				success: false, 
+				message: 'No token provided.' 
+			});
+		} else {
+			var ItemsModel = require('./mongo').ItemsModel;
+			ItemsModel.find({
+				"phone": new RegExp(req.params.name)
+			}, function (err, items) {
+				if (err) {
+					res.send({error: err.message});
+				} else {
+					console.log('mongo - ' + items.length);
+					res.send(items);
+				}
+			});
+		}
+	});
+});
