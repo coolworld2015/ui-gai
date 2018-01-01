@@ -10,8 +10,8 @@ app.listen(process.env.PORT || 3000, function () {
 
 app.get('/', function (req, res) {
 	//res.sendFile(__dirname + '/build/index.html');
-	res.sendFile(__dirname + '/auth.html');			//	MUST REMOVE !!!
-    //res.send('It is just API Server...');
+	//res.sendFile(__dirname + '/auth.html');			//	MUST REMOVE !!!
+    res.send('It is just API Server...');
 });
 
 //app.use(express.static(__dirname + '/'));
@@ -65,7 +65,7 @@ app.post('/api/login', function(req, res) {
 					if (err) {
 						return res.send({error: 'Server error'});
 					} else {
-						res.send(token); // Send TOKEN here !!!
+						res.send({token: token}); // Send TOKEN here !!!
 					}
 				});
 				// Audit end
